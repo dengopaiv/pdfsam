@@ -58,7 +58,7 @@
                         </goals>
                         <configuration>
                             <target>
-                                <move file="${project.build.outputDirectory}/org/pdfsam/i18n/Messages_iw.properties" tofile="${project.build.outputDirectory}/org/pdfsam/i18n/Messages_he.properties" />
+                                <move failonerror="false" file="${project.build.outputDirectory}/org/pdfsam/i18n/Messages_iw.properties" tofile="${project.build.outputDirectory}/org/pdfsam/i18n/Messages_he.properties" />
                             </target>
                         </configuration>
                     </execution>

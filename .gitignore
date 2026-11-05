@@ -19,3 +19,4 @@ target/
 .claude/
 .env
 CLAUDE.md
+/dist/

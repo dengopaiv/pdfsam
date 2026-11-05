@@ -48,8 +48,8 @@ class SidebarButtonWithNotification<T extends SidebarButton> extends StackPane {
         this.graphic = notificationGraphic;
         this.notificationType = notificationType;
         this.setFocusTraversable(false);
-        this.setAccessibleRole(AccessibleRole.BUTTON);
-        this.setAccessibleText(wrapped.getAccessibleText());
+        //this is just a container, the wrapped button is what screen readers should announce
+        this.setAccessibleRole(AccessibleRole.PARENT);
         notificationGraphic.setVisible(false);
         setStyle("-fx-background-color: rgba(0, 0, 0, 0);");
         var notification = new Pane();
