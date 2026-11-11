@@ -78,7 +78,14 @@ public class NotificationsControllerTest {
     public void onAddRequest() {
         var event = new AddNotificationRequest(NotificationType.INFO, "msg", "title");
         victim.onAddRequest(event);
-        verify(container).addNotification(eq("title"), any());
+        verify(container).addNotification(eq("title"), any(), eq(false));
+    }
+
+    @Test
+    public void onAddErrorRequestTakesFocus() {
+        var event = new AddNotificationRequest(NotificationType.ERROR, "msg", "title");
+        victim.onAddRequest(event);
+        verify(container).addNotification(eq("title"), any(), eq(true));
     }
 
     @Test
