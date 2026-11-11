@@ -50,6 +50,7 @@ public enum BooleanPersistentProperty implements PersistentProperty<Boolean> {
     SAVE_WORKSPACE_ON_EXIT(() -> Boolean.FALSE),
     SAVE_PWD_IN_WORKSPACE(() -> Boolean.FALSE),
     SIDEBAR_EXPANDED_STATE(() -> Boolean.TRUE),
+    STICKY_NOTIFICATIONS(() -> Boolean.FALSE),
     DISCARD_BOOKMARKS(() -> Boolean.parseBoolean(System.getProperty(DISCARD_BOOKMARKS_PROP, Boolean.FALSE.toString())));
 
     private final Supplier<Boolean> defaultSupplier;

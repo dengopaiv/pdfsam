@@ -32,13 +32,19 @@ import org.pdfsam.eventstudio.annotation.EventListener;
 import org.pdfsam.eventstudio.annotation.EventStation;
 import org.pdfsam.model.tool.TaskExecutionRequest;
 import org.pdfsam.model.tool.ToolBound;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.sejda.model.exception.InvalidTaskParametersException;
 import org.sejda.model.notification.event.PercentageOfWorkDoneChangedEvent;
 import org.sejda.model.notification.event.TaskExecutionCompletedEvent;
 import org.sejda.model.notification.event.TaskExecutionFailedEvent;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Optional;
 
+import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.pdfsam.eventstudio.StaticStudio.eventStudio;
 import static org.pdfsam.i18n.I18nContext.i18n;
@@ -82,6 +88,7 @@ public class Footer extends HBox implements ToolBound {
         eventStudio().add(TaskExecutionRequest.class, e -> {
             if (e.toolId().equals(ownerModule)) {
                 failed.setVisible(false);
+                failed.setAccessibleText(null);
                 openButton.setVisible(false);
                 statusLabel.setVisible(true);
                 statusLabel.setText(i18n().tr("Requested"));
@@ -123,11 +130,22 @@ public class Footer extends HBox implements ToolBound {
     public void onTaskFailed(TaskExecutionFailedEvent event) {
         openButton.setVisible(false);
         failed.setVisible(true);
+        //the button gets the focus, its name is what screen readers read about the failure
+        failed.setAccessibleText(
+                i18n().tr("Failed") + failureReason(event).map(r -> ": " + r).orElse("") + ". " + failed.getText());
         failed.requestFocus();
         failed.notifyAccessibleAttributeChanged(AccessibleAttribute.FOCUSED);
         statusLabel.setText(i18n().tr("Failed"));
         bar.setAccessibleText(i18n().tr("Task progress: {0}", i18n().tr("Failed")));
         bar.notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
+    }
+
+    private static Optional<String> failureReason(TaskExecutionFailedEvent event) {
+        if (event.getFailingCause() instanceof InvalidTaskParametersException) {
+            return Optional.of(i18n().tr("Input parameters are invalid"));
+        }
+        return ofNullable(ExceptionUtils.getRootCause(event.getFailingCause())).map(Throwable::getMessage)
+                .filter(StringUtils::isNotBlank).map(m -> abbreviate(m, 200));
     }
 
     @EventListener

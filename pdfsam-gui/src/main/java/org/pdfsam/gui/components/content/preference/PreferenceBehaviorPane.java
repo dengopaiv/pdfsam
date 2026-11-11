@@ -44,7 +44,8 @@ class PreferenceBehaviorPane extends GridPane {
             CheckForUpdatesButton checkForUpdatesNow,
             @Named("logViewRowsNumber") PreferenceIntTextField logViewRowsNumber,
             @Named("checkForNews") PreferenceCheckBox checkForNews,
-            @Named("clearConfirmation") PreferenceCheckBox clearConfirmation) {
+            @Named("clearConfirmation") PreferenceCheckBox clearConfirmation,
+            @Named("stickyNotifications") PreferenceCheckBox stickyNotifications) {
 
         var logViewRowsLabel = new Label(i18n().tr("Log register rows") + ":");
         logViewRowsLabel.setLabelFor(logViewRowsNumber);
@@ -56,12 +57,13 @@ class PreferenceBehaviorPane extends GridPane {
         add(helpIcon(i18n().tr("Maximum number of rows displayed by the Log register")), 2, 1);
 
         add(playSounds, 0, 2, 3, 1);
-        add(donationNotification, 0, 3, 3, 1);
-        add(checkForNews, 0, 4, 3, 1);
-        add(fetchPremiumModules, 0, 5, 3, 1);
-        add(clearConfirmation, 0, 6, 3, 1);
+        add(stickyNotifications, 0, 3, 3, 1);
+        add(donationNotification, 0, 4, 3, 1);
+        add(checkForNews, 0, 5, 3, 1);
+        add(fetchPremiumModules, 0, 6, 3, 1);
+        add(clearConfirmation, 0, 7, 3, 1);
         if (!Boolean.getBoolean(PDFSAM_DISABLE_UPDATES_CHECKING)) {
-            add(new VBox(checkForUpdates, checkForUpdatesNow), 0, 7, 3, 1);
+            add(new VBox(checkForUpdates, checkForUpdatesNow), 0, 8, 3, 1);
         }
         getStyleClass().addAll(Style.CONTAINER.css());
         getStyleClass().addAll(Style.GRID.css());

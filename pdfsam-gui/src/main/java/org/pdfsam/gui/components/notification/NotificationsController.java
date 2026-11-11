@@ -79,7 +79,9 @@ public class NotificationsController {
 
     @EventListener
     public void onAddRequest(AddNotificationRequest event) {
-        container.addNotification(event.title(), buildLabel(event.message(), event.type()));
+        //errors are about something the user just did (ex. Run with invalid parameters), they get the focus like an alert would
+        container.addNotification(event.title(), buildLabel(event.message(), event.type()),
+                event.type() == NotificationType.ERROR);
     }
 
     private Label buildLabel(String message, NotificationType type) {

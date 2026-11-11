@@ -175,6 +175,9 @@ public class PdfsamApp extends Application {
                 .put(new KeyCodeCombination(KeyCode.Q, KeyCombination.SHORTCUT_DOWN), Platform::exit);
         mainScene.getAccelerators().put(RunButtonTriggerRequest.KEY_CODE_COMBINATION,
                 () -> eventStudio().broadcast(RunButtonTriggerRequest.INSTANCE));
+        mainScene.getAccelerators()
+                .put(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN),
+                        notifications::focusLatest);
         return mainScene;
     }
 

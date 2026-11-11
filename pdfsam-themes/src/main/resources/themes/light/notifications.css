@@ -21,6 +21,12 @@
     -fx-min-width: 26.666666em;
 }
 
+/* notifications get the focus for keyboard and screen reader users */
+.notification:focused {
+    -fx-background-color: -text-field-focus-color, -notification-color;
+    -fx-background-insets: 0.0, 2.0;
+}
+
 .notification-title {
     -fx-font-size: 1.25em;
     -fx-font-weight: bold;

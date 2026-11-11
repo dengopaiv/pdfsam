@@ -26,6 +26,10 @@ import javafx.scene.Node;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import org.pdfsam.core.context.BooleanPersistentProperty;
+
+import static java.util.Objects.nonNull;
+import static org.pdfsam.core.context.ApplicationContext.app;
 
 /**
  * Container for the notifications
@@ -35,15 +39,34 @@ import javafx.util.Duration;
  */
 public class NotificationsContainer extends VBox {
 
+    private static final Duration FADE_DELAY = Duration.seconds(5);
+    private Node focusBeforeNotification;
+
     public NotificationsContainer() {
         getStyleClass().add("notifications");
         setMaxHeight(Region.USE_PREF_SIZE);
     }
 
     void addNotification(String title, Node message) {
+        addNotification(title, message, false);
+    }
+
+    /**
+     * @param takeFocus whether the notification should get the focus, so that screen readers read it. For notifications reporting a problem
+     *                  with something the user just did, the same way an alert dialog would.
+     */
+    void addNotification(String title, Node message, boolean takeFocus) {
         Platform.runLater(() -> {
             Notification toAdd = doAddNotification(title, message);
-            fadeIn(toAdd, e -> toAdd.fadeAway(Duration.seconds(5)));
+            if (app().persistentSettings().get(BooleanPersistentProperty.STICKY_NOTIFICATIONS)) {
+                fadeIn(toAdd, null);
+            } else {
+                toAdd.onFocusLeft(() -> toAdd.autoFadeAway(FADE_DELAY));
+                fadeIn(toAdd, e -> toAdd.autoFadeAway(FADE_DELAY));
+            }
+            if (takeFocus) {
+                focus(toAdd);
+            }
         });
     }
 
@@ -56,9 +79,42 @@ public class NotificationsContainer extends VBox {
 
     private Notification doAddNotification(String title, Node message) {
         Notification toAdd = new Notification(title, message);
-        toAdd.onFade(e -> getChildren().remove(toAdd));
+        toAdd.onFade(e -> {
+            var hadFocus = toAdd.isFocusWithin();
+            getChildren().remove(toAdd);
+            if (hadFocus) {
+                restoreFocus();
+            }
+        });
         getChildren().add(toAdd);
         return toAdd;
+    }
+
+    /**
+     * Moves the focus to the most recent notification, if any. This is how keyboard and screen reader users reach notifications, which are
+     * otherwise only shown for a few seconds.
+     */
+    public void focusLatest() {
+        getChildren().stream().filter(Notification.class::isInstance).map(Notification.class::cast)
+                .reduce((first, second) -> second).ifPresent(this::focus);
+    }
+
+    private void focus(Notification notification) {
+        var scene = getScene();
+        if (nonNull(scene)) {
+            var owner = scene.getFocusOwner();
+            if (nonNull(owner) && !isFocusWithin()) {
+                focusBeforeNotification = owner;
+            }
+            notification.requestFocus();
+        }
+    }
+
+    private void restoreFocus() {
+        if (nonNull(focusBeforeNotification) && focusBeforeNotification.getScene() == getScene()) {
+            focusBeforeNotification.requestFocus();
+        }
+        focusBeforeNotification = null;
     }
 
     private void fadeIn(Notification toAdd, EventHandler<ActionEvent> onFinished) {

@@ -24,9 +24,14 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Label;
+import javafx.scene.control.Labeled;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -34,8 +39,11 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.unicons.UniconsLine;
 import org.pdfsam.ui.components.support.Style;
 
+import java.util.StringJoiner;
 import java.util.UUID;
 
+import static java.util.Objects.requireNonNullElse;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.pdfsam.eventstudio.StaticStudio.eventStudio;
 import static org.pdfsam.i18n.I18nContext.i18n;
 import static org.sejda.commons.util.RequireUtils.requireNotNullArg;
@@ -49,6 +57,8 @@ import static org.sejda.commons.util.RequireUtils.requireNotNullArg;
 class Notification extends VBox {
 
     private final FadeTransition fade = new FadeTransition(Duration.millis(500), this);
+    private Runnable onFocusLeft = () -> {
+    };
 
     Notification(String title, Node content) {
         requireNotNullArg(content, "Notification content cannot be blank");
@@ -56,8 +66,24 @@ class Notification extends VBox {
         getStyleClass().addAll(Style.CONTAINER.css());
         setId(UUID.randomUUID().toString());
         setAccessibleRole(AccessibleRole.TEXT);
-        setAccessibleText(title);
+        //the whole notification, so that screen readers read it all when it gets the focus
+        setAccessibleText(accessibleText(title, content));
         setAccessibleRoleDescription(i18n().tr("Notification"));
+        setFocusTraversable(true);
+        focusWithinProperty().addListener((o, oldVal, focused) -> {
+            if (focused) {
+                fade.stop();
+                setOpacity(1);
+            } else {
+                onFocusLeft.run();
+            }
+        });
+        addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                eventStudio().broadcast(new RemoveNotificationRequest(getId()));
+                e.consume();
+            }
+        });
         var closeButton = new Button("", FontIcon.of(UniconsLine.TIMES));
         closeButton.getStyleClass().addAll("close-button");
         closeButton.setAccessibleText(i18n().tr("Close notification"));
@@ -82,6 +108,42 @@ class Notification extends VBox {
         });
         fade.setFromValue(1);
         fade.setToValue(0);
+    }
+
+    private static String accessibleText(String title, Node content) {
+        var text = new StringJoiner(". ");
+        if (isNotBlank(title)) {
+            text.add(title);
+        }
+        collectText(content, text);
+        return text.toString();
+    }
+
+    private static void collectText(Node node, StringJoiner text) {
+        if (node instanceof Labeled labeled && !(node instanceof ButtonBase)) {
+            if (isNotBlank(labeled.getText())) {
+                text.add(labeled.getText());
+            }
+        } else if (node instanceof Parent parent) {
+            parent.getChildrenUnmodifiable().forEach(c -> collectText(c, text));
+        }
+    }
+
+    /**
+     * @param onFocusLeft action to perform when the focus leaves the notification
+     */
+    void onFocusLeft(Runnable onFocusLeft) {
+        this.onFocusLeft = requireNonNullElse(onFocusLeft, () -> {
+        });
+    }
+
+    /**
+     * Fades the notification away after the given delay, unless it has the focus. A notification someone is reading stays.
+     */
+    void autoFadeAway(Duration delay) {
+        if (!isFocusWithin()) {
+            fadeAway(delay);
+        }
     }
 
     void onFade(EventHandler<ActionEvent> onFaded) {

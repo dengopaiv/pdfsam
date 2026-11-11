@@ -54,6 +54,7 @@ import static org.pdfsam.core.context.BooleanPersistentProperty.PREMIUM_MODULES;
 import static org.pdfsam.core.context.BooleanPersistentProperty.SAVE_PWD_IN_WORKSPACE;
 import static org.pdfsam.core.context.BooleanPersistentProperty.SAVE_WORKSPACE_ON_EXIT;
 import static org.pdfsam.core.context.BooleanPersistentProperty.SMART_OUTPUT;
+import static org.pdfsam.core.context.BooleanPersistentProperty.STICKY_NOTIFICATIONS;
 import static org.pdfsam.core.context.IntegerPersistentProperty.LOGVIEW_ROWS_NUMBER;
 import static org.pdfsam.core.context.StringPersistentProperty.COMPRESSION_POLICY;
 import static org.pdfsam.core.context.StringPersistentProperty.FONT;
@@ -235,6 +236,19 @@ public class PreferenceConfig {
         playSounds.getStyleClass().addAll(Style.WITH_HELP.css());
         playSounds.getStyleClass().addAll(Style.VITEM.css());
         return playSounds;
+    }
+
+    @Provides
+    @Named("stickyNotifications")
+    public PreferenceCheckBox stickyNotifications() {
+        var stickyNotifications = new PreferenceCheckBox(STICKY_NOTIFICATIONS,
+                i18n().tr("Keep notifications until closed"), app().persistentSettings().get(STICKY_NOTIFICATIONS));
+        stickyNotifications.setId("stickyNotifications");
+        stickyNotifications.setGraphic(helpIcon(i18n().tr(
+                "Set whether notifications should stay until closed instead of disappearing after a few seconds. Ctrl+Shift+N moves the focus to the latest notification")));
+        stickyNotifications.getStyleClass().addAll(Style.WITH_HELP.css());
+        stickyNotifications.getStyleClass().addAll(Style.VITEM.css());
+        return stickyNotifications;
     }
 
     @Provides
