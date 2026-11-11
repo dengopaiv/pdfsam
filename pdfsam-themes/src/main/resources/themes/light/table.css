@@ -20,6 +20,11 @@
     -fx-font-weight: bold;
 }
 
+/* the status column header has text only for screen readers */
+.table-view .column-header.loading-status-column .label {
+    -fx-content-display: graphic-only;
+}
+
 .table-view:focused > .virtual-flow > .clipped-container > .sheet > .table-row-cell:filled:selected {
     -fx-background: -table-selected-background-color;
     -fx-cell-focus-inner-border: -table-selected-background-color;

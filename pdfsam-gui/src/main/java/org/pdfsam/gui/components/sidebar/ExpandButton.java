@@ -45,6 +45,8 @@ class ExpandButton extends HBox {
         expand.getStyleClass().add("sidebar-button-arrow");
         expand.setAccessibleRole(AccessibleRole.IMAGE_VIEW);
         toggle.setGraphic(expand);
+        //name of the initial, not selected, state. The listener only runs if the restored state differs
+        toggle.setAccessibleText(i18n().tr("Expand the sidebar"));
         toggle.selectedProperty().addListener((observable, oldValue, newValue) -> {
             app().persistentSettings().set(BooleanPersistentProperty.SIDEBAR_EXPANDED_STATE, newValue);
             if (newValue) {

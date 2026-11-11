@@ -36,6 +36,7 @@ import java.util.Comparator;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.pdfsam.eventstudio.StaticStudio.eventStudio;
+import static org.pdfsam.i18n.I18nContext.i18n;
 import static org.pdfsam.model.pdf.PdfDescriptorLoadingStatus.ENCRYPTED;
 import static org.pdfsam.model.pdf.PdfDescriptorLoadingStatus.WITH_ERRORS;
 
@@ -79,6 +80,9 @@ public class LoadingColumn extends BaseToolBound implements SelectionTableColumn
     @Override
     public TableColumn<SelectionTableRowData, PdfDescriptorLoadingStatus> getTableColumn() {
         TableColumn<SelectionTableRowData, PdfDescriptorLoadingStatus> tableColumn = new TableColumn<>(getColumnTitle());
+        //the header shows no text (see the loading-status-column style) but screen readers need a name for the column
+        tableColumn.setText(i18n().tr("PDF encryption status"));
+        tableColumn.getStyleClass().add("loading-status-column");
         tableColumn.setCellFactory(cellFactory());
         tableColumn.setCellValueFactory(cellValueFactory());
         tableColumn.setComparator(null);

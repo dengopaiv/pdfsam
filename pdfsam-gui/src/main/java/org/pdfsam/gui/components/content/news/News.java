@@ -77,6 +77,8 @@ public class News extends VBox {
         if (isNotBlank(data.link())) {
             Button link = UrlButton.urlButton(null, data.link(), UniconsLine.EXTERNAL_LINK_ALT,
                     Style.NEWS_BUTTON.css());
+            //icon only link, screen readers need a name for it
+            link.setAccessibleText(data.title());
             bottom.getChildren().add(link);
         }
         getChildren().addAll(flow, bottom);
