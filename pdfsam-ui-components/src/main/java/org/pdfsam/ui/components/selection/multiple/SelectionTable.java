@@ -262,21 +262,6 @@ public class SelectionTable extends TableView<SelectionTableRowData> implements 
             moveUpSelected.setAccelerator(new KeyCodeCombination(KeyCode.UP, KeyCombination.ALT_DOWN));
             moveTopSelected.setAccelerator(new KeyCodeCombination(KeyCode.HOME, KeyCombination.ALT_DOWN));
 
-            MenuItem unlockSelected = createMenuItem(i18n().tr("Unlock selected"), UniconsLine.UNLOCK_ALT);
-            unlockSelected.setOnAction(e -> {
-                TableViewSelectionModel<SelectionTableRowData> sm = getSelectionModel();
-                PdfDocumentDescriptor[] descriptors = sm.getSelectedItems().stream()
-                        .map(SelectionTableRowData::descriptor).toArray(PdfDocumentDescriptor[]::new);
-                eventStudio().broadcast(new ShowPasswordFieldPopupRequest(this, descriptors), toolBinding());
-            });
-            unlockSelected.setAccelerator(new KeyCodeCombination(KeyCode.U, KeyCombination.CONTROL_DOWN));
-            unlockSelected.disableProperty().bind(Bindings.createBooleanBinding(() -> {
-                TableViewSelectionModel<SelectionTableRowData> sm = getSelectionModel();
-                return sm.getSelectedItems().stream().noneMatch(
-                        data -> data.descriptor().loadingStatus().getValue() == PdfDescriptorLoadingStatus.ENCRYPTED);
-            }, getSelectionModel().getSelectedItems()));
-            contextMenu.getItems().add(unlockSelected);
-
             selectionChangedConsumer = selectionChangedConsumer.andThen(e -> {
                 moveTopSelected.setDisable(!e.canMove(MoveType.TOP));
                 moveUpSelected.setDisable(!e.canMove(MoveType.UP));
@@ -284,6 +269,22 @@ public class SelectionTable extends TableView<SelectionTableRowData> implements 
                 moveBottomSelected.setDisable(!e.canMove(MoveType.BOTTOM));
             });
         }
+
+        MenuItem unlockSelected = createMenuItem(i18n().tr("Unlock selected"), UniconsLine.UNLOCK_ALT);
+        unlockSelected.setOnAction(e -> {
+            TableViewSelectionModel<SelectionTableRowData> sm = getSelectionModel();
+            PdfDocumentDescriptor[] descriptors = sm.getSelectedItems().stream()
+                    .map(SelectionTableRowData::descriptor).toArray(PdfDocumentDescriptor[]::new);
+            eventStudio().broadcast(new ShowPasswordFieldPopupRequest(this, descriptors), toolBinding());
+        });
+        unlockSelected.setAccelerator(new KeyCodeCombination(KeyCode.U, KeyCombination.CONTROL_DOWN));
+        unlockSelected.disableProperty().bind(Bindings.createBooleanBinding(() -> {
+            TableViewSelectionModel<SelectionTableRowData> sm = getSelectionModel();
+            return sm.getSelectedItems().stream().noneMatch(
+                    data -> data.descriptor().loadingStatus().getValue() == PdfDescriptorLoadingStatus.ENCRYPTED);
+        }, getSelectionModel().getSelectedItems()));
+        contextMenu.getItems().add(unlockSelected);
+
         if (canDuplicate) {
             Menu duplicateItem = new Menu(i18n().tr("Duplicate"));
             duplicateItem.setGraphic(FontIcon.of(UniconsLine.COPY));

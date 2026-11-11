@@ -33,6 +33,7 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -71,6 +72,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -101,6 +103,9 @@ public class SingleSelectionPane extends VBox implements ToolBound, PdfDocumentD
     private final PasswordFieldPopup passwordPopup;
     private final Label encryptionIndicator = new Label();
     private MenuItem removeSelected;
+    private MenuItem unlockItem;
+    private static final KeyCombination UNLOCK_COMBINATION = new KeyCodeCombination(KeyCode.U,
+            KeyCombination.SHORTCUT_DOWN);
 
     private Consumer<PdfDocumentDescriptor> onLoaded = d -> {
         eventStudio().broadcast(requestFallbackDestination(d.getFile(), toolBinding()), toolBinding());
@@ -125,7 +130,14 @@ public class SingleSelectionPane extends VBox implements ToolBound, PdfDocumentD
 
         @Override
         public void accept(PdfDocumentDescriptor t) {
-            updater.accept(t.loadingStatus().getValue());
+            var status = t.loadingStatus().getValue();
+            updater.accept(status);
+            if (isNull(encryptionIndicator.getAccessibleText())) {
+                encryptionIndicator.setAccessibleText(i18n().tr("PDF encryption status"));
+            }
+            //a keyboard stop only when there's something to do with it
+            encryptionIndicator.setFocusTraversable(status == ENCRYPTED || status == WITH_ERRORS);
+            unlockItem.setDisable(status != ENCRYPTED);
         }
     };
 
@@ -187,16 +199,37 @@ public class SingleSelectionPane extends VBox implements ToolBound, PdfDocumentD
         encryptionIndicator.getStyleClass().addAll("encryption-status");
         encryptionIndicator.setAccessibleRole(AccessibleRole.BUTTON);
         encryptionIndicator.setAccessibleText(i18n().tr("PDF encryption status"));
-        encryptionIndicator.setFocusTraversable(true);
-        encryptionIndicator.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+        encryptionIndicator.setFocusTraversable(false);
+        encryptionIndicator.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> onEncryptionIndicatorAction());
+        encryptionIndicator.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.SPACE || e.getCode() == KeyCode.ENTER) {
+                onEncryptionIndicatorAction();
+                e.consume();
+            }
+        });
+        //handled here and not as a context menu accelerator, those are window wide and a tool can have more than one of these panes
+        addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (UNLOCK_COMBINATION.match(e) && isEncrypted()) {
+                showPasswordFieldPopup();
+                e.consume();
+            }
+        });
+        HBox.setMargin(encryptionIndicator, new Insets(0, 0, 0, 2));
+        field.setGraphic(encryptionIndicator);
+    }
+
+    private void onEncryptionIndicatorAction() {
+        if (nonNull(descriptor)) {
             if (descriptor.loadingStatus().getValue() == ENCRYPTED) {
                 showPasswordFieldPopup();
             } else if (descriptor.loadingStatus().getValue() == WITH_ERRORS) {
                 eventStudio().broadcast(new ShowLogMessagesRequest());
             }
-        });
-        HBox.setMargin(encryptionIndicator, new Insets(0, 0, 0, 2));
-        field.setGraphic(encryptionIndicator);
+        }
+    }
+
+    private boolean isEncrypted() {
+        return nonNull(descriptor) && descriptor.loadingStatus().getValue() == ENCRYPTED;
     }
 
     private void initializeFor(PdfDocumentDescriptor docDescriptor) {
@@ -213,6 +246,7 @@ public class SingleSelectionPane extends VBox implements ToolBound, PdfDocumentD
         invalidateDescriptor();
         setContextMenuDisable(true);
         encryptionIndicator.setText("");
+        encryptionIndicator.setFocusTraversable(false);
         details.setText("");
     }
 
@@ -222,6 +256,7 @@ public class SingleSelectionPane extends VBox implements ToolBound, PdfDocumentD
 
     private void setContextMenuDisable(boolean value) {
         field.getTextField().getContextMenu().getItems().forEach(i -> i.setDisable(value));
+        unlockItem.setDisable(!isEncrypted());
         disableRemoveMenuItemIfNeeded();
     }
 
@@ -308,9 +343,16 @@ public class SingleSelectionPane extends VBox implements ToolBound, PdfDocumentD
         openFolderItem.setOnAction(
                 e -> eventStudio().broadcast(new NativeOpenFileRequest(descriptor.getFile().getParentFile())));
 
+        unlockItem = createMenuItem(i18n().tr("Unlock"), UniconsLine.UNLOCK_ALT);
+        unlockItem.setOnAction(e -> {
+            if (isEncrypted()) {
+                showPasswordFieldPopup();
+            }
+        });
+
         field.getTextField().setContextMenu(
-                new ContextMenu(setDestinationItem, new SeparatorMenuItem(), removeSelected, new SeparatorMenuItem(),
-                        infoItem, openFileItem, openFolderItem));
+                new ContextMenu(setDestinationItem, new SeparatorMenuItem(), removeSelected, unlockItem,
+                        new SeparatorMenuItem(), infoItem, openFileItem, openFolderItem));
     }
 
     @EventListener
