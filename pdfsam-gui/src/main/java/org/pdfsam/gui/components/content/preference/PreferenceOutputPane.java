@@ -112,7 +112,7 @@ class PreferenceOutputPane extends GridPane {
                 """.formatted(
                 i18n().tr("Default prefix for output file names, used in tools that generate multiple files"),
                 i18n().tr("Some special keywords are replaced with runtime values."),
-                i18n().tr("Right click to add these keywords.")));
+                i18n().tr("Right click or press Shift+F10 to add these keywords.")));
         add(helpIcon, 2, 7);
 
         getStyleClass().addAll(Style.CONTAINER.css());

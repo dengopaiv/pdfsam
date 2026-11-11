@@ -37,7 +37,7 @@ public class PreferencePrefixField extends PrefixField {
 
     PreferencePrefixField(ApplicationContext context) {
         setText(context.persistentSettings().get(StringPersistentProperty.PREFIX).orElse("PDFsam_"));
-        setAccessibleHelp(i18n().tr("Right click to add special prefix keywords"));
+        setAccessibleHelp(i18n().tr("Right click or press Shift+F10 to add special prefix keywords"));
         addMenuItemFor(Prefix.FILENUMBER.getFriendlyName(), Prefix.CURRENTPAGE.getFriendlyName(),
                 Prefix.BOOKMARK.getFriendlyName(), Prefix.BOOKMARK_STRICT.getFriendlyName(),
                 Prefix.TOTAL_FILESNUMBER.getFriendlyName());

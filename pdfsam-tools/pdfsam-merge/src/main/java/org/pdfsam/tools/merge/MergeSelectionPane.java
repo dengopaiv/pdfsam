@@ -49,7 +49,7 @@ public class MergeSelectionPane extends MultipleSelectionPane
     public MergeSelectionPane(String ownerModule) {
         super(ownerModule, true, true, new LoadingColumn(ownerModule), FileColumn.NAME, LongColumn.SIZE,
                 IntColumn.PAGES, new PageRangesColumn(
-                        i18n().tr("Double click to set pages you want to merge (ex: 2 or 5-23 or 2,5-7,12-)")),
+                        i18n().tr("Press F2 or double click to set pages you want to merge (ex: 2 or 5-23 or 2,5-7,12-)")),
                 new SelectedPagesColumn(), LongColumn.LAST_MODIFIED);
         this.showTotalPagesLabel();
     }

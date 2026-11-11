@@ -77,7 +77,7 @@ public class PaceColumn implements SelectionTableColumn<String> {
     @Override
     public Callback<TableColumn<SelectionTableRowData, String>, TableCell<SelectionTableRowData, String>> cellFactory() {
         return param -> new TooltippedTextFieldTableCell(
-                i18n().tr("Double click to set the number of pages after which the task will switch to the next file"));
+                i18n().tr("Press Shift+F2 or double click to set the number of pages after which the task will switch to the next file"));
     }
 
 }

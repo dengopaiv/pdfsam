@@ -39,8 +39,8 @@ public enum PdfDescriptorLoadingStatus {
     LOADING(UniconsLine.ANGLE_RIGHT, ""),
     LOADED,
     LOADED_WITH_USER_PWD_DECRYPTION(UniconsLine.UNLOCK, i18n().tr("Valid user password provided.")),
-    ENCRYPTED(UniconsLine.LOCK, i18n().tr("This document is encrypted, click to provide a password."), "with-warnings"),
-    WITH_ERRORS(UniconsLine.EXCLAMATION_CIRCLE, i18n().tr("An error has occurred, click for more details."),
+    ENCRYPTED(UniconsLine.LOCK, i18n().tr("This document is encrypted, press Ctrl+U or click to provide a password."), "with-warnings"),
+    WITH_ERRORS(UniconsLine.EXCLAMATION_CIRCLE, i18n().tr("An error has occurred, click or open Logs for more details."),
             "with-errors");
 
     static {

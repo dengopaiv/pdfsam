@@ -77,7 +77,7 @@ public class PrefixPane extends GridPane
                 %s
                 """.formatted(i18n().tr("Prefix for the output files name."),
                 i18n().tr("Some special keywords are replaced with runtime values."),
-                i18n().tr("Right click to add these keywords.")));
+                i18n().tr("Right click or press Shift+F10 to add these keywords.")));
         GridPane.setValignment(helpIcon, VPos.CENTER);
         add(helpIcon, 2, 0);
 
