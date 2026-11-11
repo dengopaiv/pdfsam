@@ -18,11 +18,13 @@
  */
 package org.pdfsam.ui.components.selection.multiple;
 
+import javafx.beans.binding.Bindings;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
-import org.pdfsam.model.ObservableAtomicReference;
 
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.pdfsam.i18n.I18nContext.i18n;
 
 /**
@@ -53,13 +55,38 @@ public class IndexColumn extends TableColumn<SelectionTableRowData, Object> {
                         } else {
                             var index = Integer.toString(getIndex() + 1);
                             setText(index);
-                            setAccessibleText(i18n().tr("Row {0}", index));
+                            setAccessibleText(accessibleText(index));
                         }
+                    }
+
+                    /**
+                     * This is the cell focused when moving through the rows, so it describes the whole row and not just its index
+                     */
+                    private String accessibleText(String index) {
+                        var text = new StringBuilder(i18n().tr("Row {0}", index));
+                        var row = getTableRow();
+                        if (nonNull(row) && nonNull(row.getItem())) {
+                            var descriptor = row.getItem().descriptor();
+                            text.append(": ").append(descriptor.getFileName());
+                            var pages = descriptor.pages().getValue();
+                            if (nonNull(pages) && pages > 0) {
+                                text.append(", ").append(i18n().tr("{0} pages", Integer.toString(pages)));
+                            }
+                            var status = descriptor.loadingStatus().getValue();
+                            if (nonNull(status) && isNotBlank(status.getDescription())) {
+                                text.append(", ").append(status.getDescription());
+                            }
+                        }
+                        return text.toString();
                     }
                 };
             }
         });
 
-        setCellValueFactory(param -> new ObservableAtomicReference<>(new Object()));
+        //a new value every time pages or loading status change, so the cell updates its accessible text
+        setCellValueFactory(param -> {
+            var descriptor = param.getValue().descriptor();
+            return Bindings.createObjectBinding(Object::new, descriptor.pages(), descriptor.loadingStatus());
+        });
     }
 }
