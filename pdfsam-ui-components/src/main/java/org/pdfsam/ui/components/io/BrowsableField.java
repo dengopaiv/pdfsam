@@ -19,9 +19,9 @@
 package org.pdfsam.ui.components.io;
 
 import javafx.css.PseudoClass;
-import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.Clipboard;
 import javafx.scene.layout.HBox;
@@ -30,6 +30,7 @@ import org.pdfsam.model.ui.workspace.RestorableView;
 import org.pdfsam.ui.components.commons.ValidableTextField;
 import org.pdfsam.ui.components.support.FXValidationSupport;
 import org.pdfsam.ui.components.support.Style;
+import org.pdfsam.ui.components.support.Views;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -67,10 +68,13 @@ abstract class BrowsableField extends HBox implements RestorableView {
 
     };
     private final HBox validableContainer;
+    private final Label nameLabel = Views.hiddenLabelFor(textField, EMPTY);
     private String browseWindowTitle = i18n().tr("Select");
+    private boolean genericBrowseButton = false;
 
     public BrowsableField() {
         this(new Button(i18n().tr("Browse")));
+        this.genericBrowseButton = true;
         browseButton.getStyleClass().addAll(Style.BROWSE_BUTTON.css());
         browseButton.prefHeightProperty().bind(textField.heightProperty());
         browseButton.setMaxHeight(USE_PREF_SIZE);
@@ -89,17 +93,27 @@ abstract class BrowsableField extends HBox implements RestorableView {
         textField.validProperty().addListener((o, oldValue, newValue) -> {
             if (newValue == FXValidationSupport.ValidationState.INVALID) {
                 validableContainer.getStyleClass().addAll(Style.INVALID.css());
-                textField.setAccessibleText(i18n().tr("Invalid value: {0}", textField.getPromptText()));
-                textField.notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
             } else {
                 validableContainer.getStyleClass().removeAll(Style.INVALID.css());
-                textField.setAccessibleText(textField.getPromptText());
-                textField.notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
             }
+            updateAccessibleName();
         });
+        textField.promptTextProperty().addListener(o -> updateAccessibleName());
         textField.focusedProperty().addListener(
                 (o, oldVal, newVal) -> validableContainer.pseudoClassStateChanged(SELECTED_PSEUDOCLASS_STATE, newVal));
-        getChildren().add(validableContainer);
+        getChildren().addAll(nameLabel, validableContainer);
+    }
+
+    /**
+     * The prompt text is what describes the field, so it's also its name for screen readers. It goes in a hidden label and not in the
+     * accessible text, which screen readers report as the field value in place of the typed text.
+     */
+    private void updateAccessibleName() {
+        if (textField.getValidationState() == FXValidationSupport.ValidationState.INVALID) {
+            nameLabel.setText(i18n().tr("Invalid value: {0}", textField.getPromptText()));
+        } else {
+            nameLabel.setText(textField.getPromptText());
+        }
     }
 
     /**
@@ -128,18 +142,22 @@ abstract class BrowsableField extends HBox implements RestorableView {
     }
 
     /**
-     * Sets both prompt text and accessible text on the text field, keeping them in sync.
+     * Sets the prompt text of the text field, which is also the field name for screen readers
      */
     protected void setFieldPromptAndAccessibleText(String text) {
         textField.setPromptText(text);
-        textField.setAccessibleText(text);
     }
 
     /**
-     * Sets accessible text and tooltip on the browse button for screen reader context.
+     * Sets the tooltip of the browse button and describes it for screen readers. A button showing the generic "Browse" text gets this as its
+     * name, a button with its own text keeps that as name and gets this as description.
      */
     protected void setBrowseButtonAccessibleText(String text) {
-        browseButton.setAccessibleText(text);
+        if (genericBrowseButton) {
+            browseButton.setAccessibleText(text);
+        } else {
+            browseButton.setAccessibleHelp(text);
+        }
         browseButton.setTooltip(new Tooltip(text));
     }
 

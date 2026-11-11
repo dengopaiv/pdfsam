@@ -80,7 +80,6 @@ class MergeOptionsPane extends VBox
         pageNormalization.getItems().add(new ComboItem<>(PageNormalizationPolicy.SAME_WIDTH_ORIENTATION_BASED,
                 i18n().tr("Same width as first page (based on page orientation)")));
         pageNormalization.setId("normalizeCheck");
-        pageNormalization.setAccessibleText(i18n().tr("Pages normalization"));
         var pageNormalizationHelp = i18n().tr(
                 "Set whether pages should be resized to all have the same width as the first one");
         pageNormalization.setAccessibleHelp(pageNormalizationHelp);
@@ -97,7 +96,6 @@ class MergeOptionsPane extends VBox
         acroForms.getItems().add(new ComboItem<>(AcroFormPolicy.FLATTEN, i18n().tr("Flatten")));
         acroForms.getItems().add(new ComboItem<>(AcroFormPolicy.DISCARD, i18n().tr("Discard forms")));
         acroForms.setId("acroFormsCombo");
-        acroForms.setAccessibleText(i18n().tr("Interactive forms (AcroForms)"));
         var acroFormsHelp = i18n().tr("What to do in case one or more input documents contain Acro Forms");
         acroForms.setAccessibleHelp(acroFormsHelp);
         var acroFormsLabel = new Label(i18n().tr("Interactive forms (AcroForms)") + ":");
@@ -114,7 +112,6 @@ class MergeOptionsPane extends VBox
         outline.getItems().add(new ComboItem<>(OutlinePolicy.RETAIN_AS_ONE_ENTRY,
                 i18n().tr("Retain bookmarks as one entry for each merged document")));
         outline.setId("outlineCombo");
-        outline.setAccessibleText(i18n().tr("Bookmarks handling"));
         var outlineHelp = i18n().tr("What to do in case one or more input documents contain bookmarks");
         outline.setAccessibleHelp(outlineHelp);
         var outlineLabel = new Label(i18n().tr("Bookmarks handling") + ":");
@@ -128,7 +125,6 @@ class MergeOptionsPane extends VBox
         toc.getItems().add(new ComboItem<>(ToCPolicy.FILE_NAMES, i18n().tr("Generate from file names")));
         toc.getItems().add(new ComboItem<>(ToCPolicy.DOC_TITLES, i18n().tr("Generate from documents titles")));
         toc.setId("tocCombo");
-        toc.setAccessibleText(i18n().tr("Table of contents"));
         var tocHelp = i18n().tr("Set if a table of contents should be added to the generated PDF document");
         toc.setAccessibleHelp(tocHelp);
         var tocLabel = new Label(i18n().tr("Table of contents") + ":");

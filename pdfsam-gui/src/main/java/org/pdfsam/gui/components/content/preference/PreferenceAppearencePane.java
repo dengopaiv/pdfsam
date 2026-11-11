@@ -58,7 +58,6 @@ class PreferenceAppearencePane extends GridPane {
         localeCombo.setMaxWidth(Double.POSITIVE_INFINITY);
         setFillWidth(localeCombo, true);
         add(localeCombo, 1, 0);
-        localeCombo.setAccessibleText(i18n().tr("Language"));
         add(helpIcon(i18n().tr("Set your preferred language (restart needed)")), 2, 0);
 
         var startupToolLabel = new Label(i18n().tr("Startup tool") + ":");
@@ -67,7 +66,6 @@ class PreferenceAppearencePane extends GridPane {
         startupTool.setMaxWidth(Double.POSITIVE_INFINITY);
         setFillWidth(startupTool, true);
         add(startupTool, 1, 1);
-        startupTool.setAccessibleText(i18n().tr("Startup tool"));
         add(helpIcon(i18n().tr("Set the tool to open at application startup (restart needed)")), 2, 1);
 
         var themeLabel = new Label(i18n().tr("Theme") + ":");
@@ -76,7 +74,6 @@ class PreferenceAppearencePane extends GridPane {
         themeCombo.setMaxWidth(Double.POSITIVE_INFINITY);
         setFillWidth(themeCombo, true);
         add(themeCombo, 1, 2);
-        themeCombo.setAccessibleText(i18n().tr("Theme"));
         add(helpIcon(i18n().tr("Set the application theme")), 2, 2);
 
         var fontLabel = new Label(i18n().tr("Font") + ":");
@@ -85,7 +82,6 @@ class PreferenceAppearencePane extends GridPane {
         fontFamilyCombo.setMaxWidth(Double.POSITIVE_INFINITY);
         setFillWidth(fontFamilyCombo, true);
         add(fontFamilyCombo, 1, 3);
-        fontFamilyCombo.setAccessibleText(i18n().tr("Font"));
         add(helpIcon(i18n().tr("Sets the application font")), 2, 3);
 
         var fontSizeLabel = new Label(i18n().tr("Font size") + ":");
@@ -94,7 +90,6 @@ class PreferenceAppearencePane extends GridPane {
         fontSizeCombo.setMaxWidth(Double.POSITIVE_INFINITY);
         setFillWidth(fontSizeCombo, true);
         add(fontSizeCombo, 1, 4);
-        fontSizeCombo.setAccessibleText(i18n().tr("Font size"));
         add(helpIcon(i18n().tr("Set the application font size")), 2, 4);
 
         getStyleClass().addAll(Style.CONTAINER.css());

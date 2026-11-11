@@ -52,6 +52,8 @@ public class ValidableTextField extends TextField {
 
     private final FXValidationSupport<String> validationSupport = new FXValidationSupport<>();
     private ErrorTooltipManager errorTooltipManager;
+    private boolean showingAccessibleError = false;
+    private String helpBeforeError;
 
     public ValidableTextField() {
         this("");
@@ -71,12 +73,33 @@ public class ValidableTextField extends TextField {
             if (validationSupport.validationStateProperty().get() == FXValidationSupport.ValidationState.INVALID
                     && errorTooltipManager != null) {
                 errorTooltipManager.showTooltip();
-                setAccessibleText(errorTooltipManager.tooltip.getText());
-                notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
+                showAccessibleError(errorTooltipManager.tooltip.getText());
             } else {
-                setAccessibleText(null);
+                hideAccessibleError();
             }
         });
+    }
+
+    /**
+     * The error goes in the accessible help (the description screen readers read after name and value) and never in the accessible text,
+     * which screen readers report as the field value in place of what the user typed.
+     */
+    private void showAccessibleError(String error) {
+        if (!showingAccessibleError) {
+            helpBeforeError = getAccessibleHelp();
+            showingAccessibleError = true;
+        }
+        setAccessibleHelp(isNotBlank(helpBeforeError) ? error + ". " + helpBeforeError : error);
+        notifyAccessibleAttributeChanged(AccessibleAttribute.HELP);
+    }
+
+    private void hideAccessibleError() {
+        if (showingAccessibleError) {
+            showingAccessibleError = false;
+            setAccessibleHelp(helpBeforeError);
+            helpBeforeError = null;
+            notifyAccessibleAttributeChanged(AccessibleAttribute.HELP);
+        }
     }
 
     public final FXValidationSupport.ValidationState getValidationState() {

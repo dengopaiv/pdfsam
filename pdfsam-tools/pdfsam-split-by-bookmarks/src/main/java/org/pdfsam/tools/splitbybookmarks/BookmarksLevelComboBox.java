@@ -48,7 +48,6 @@ class BookmarksLevelComboBox extends ComboBox<String>
     private final FXValidationSupport<String> validationSupport = new FXValidationSupport<>();
 
     BookmarksLevelComboBox() {
-        setAccessibleText(i18n().tr("Bookmark level"));
         setAccessibleRoleDescription(i18n().tr("Bookmark level selector"));
         setPromptText(i18n().tr("Select a bookmark level"));
         validationSupport.setValidator(Validators.alwaysFalse());

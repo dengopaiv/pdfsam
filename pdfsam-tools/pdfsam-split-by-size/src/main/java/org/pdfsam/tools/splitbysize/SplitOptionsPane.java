@@ -57,7 +57,6 @@ class SplitOptionsPane extends HBox
         this.field.setValidator(Validators.positiveInteger());
         this.field.setErrorMessage(i18n().tr("Size must be a number"));
         this.field.setId("sizeField");
-        this.field.setAccessibleText(i18n().tr("Split at this size"));
         this.field.setAccessibleHelp(i18n().tr("Enter a positive integer for the maximum file size"));
         getStyleClass().addAll(Style.CONTAINER.css());
         getStyleClass().addAll(Style.HCONTAINER.css());

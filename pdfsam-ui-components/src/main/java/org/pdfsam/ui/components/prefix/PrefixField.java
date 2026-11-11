@@ -40,7 +40,6 @@ public class PrefixField extends TextField {
 
     public PrefixField() {
         this.setPromptText(i18n().tr("Prefix for the generated files names"));
-        this.setAccessibleText(i18n().tr("Prefix for the generated files names"));
         this.setAccessibleHelp(i18n().tr("Right click to add special prefix keywords like timestamp or filename"));
         this.menu = new Menu(i18n().tr("Add prefix"));
         this.menu.setId("addPrefixMenu");

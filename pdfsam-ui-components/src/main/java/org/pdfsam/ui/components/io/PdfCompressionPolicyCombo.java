@@ -46,7 +46,6 @@ public class PdfCompressionPolicyCombo extends ComboBox<ComboItem<CompressionPol
 
     public PdfCompressionPolicyCombo(String toolBinding) {
         this.toolBinding = requireNonNullElse(toolBinding, "");
-        setAccessibleText(i18n().tr("Sets the compression policy for the output files"));
         getItems().add(new ComboItem<>(CompressionPolicy.COMPRESS, i18n().tr("Compress")));
         getItems().add(new ComboItem<>(CompressionPolicy.NEUTRAL, i18n().tr("Neutral")));
         getItems().add(new ComboItem<>(CompressionPolicy.UNCOMPRESS, i18n().tr("Uncompress")));

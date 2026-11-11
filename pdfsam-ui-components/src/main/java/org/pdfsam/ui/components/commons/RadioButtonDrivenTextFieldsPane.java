@@ -20,13 +20,16 @@ package org.pdfsam.ui.components.commons;
 
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
+import javafx.scene.AccessibleAttribute;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import org.pdfsam.ui.components.support.Style;
+import org.pdfsam.ui.components.support.Views;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.sejda.commons.util.RequireUtils.requireNotNullArg;
 
@@ -65,6 +68,11 @@ public class RadioButtonDrivenTextFieldsPane extends GridPane {
         radio.setToggleGroup(group);
         add(radio, 0, rows);
         add(field, 1, rows);
+        if (isNull(field.queryAccessibleAttribute(AccessibleAttribute.LABELED_BY))) {
+            //the radio button text is what describes the field, screen readers use it as the field name
+            getChildren().add(Views.hiddenLabelFor(field,
+                    radio.isMnemonicParsing() ? radio.getText().replaceFirst("_", "") : radio.getText()));
+        }
         if (nonNull(helpIcon)) {
             add(helpIcon, 2, rows);
         }

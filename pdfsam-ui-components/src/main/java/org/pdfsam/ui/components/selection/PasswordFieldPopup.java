@@ -33,6 +33,7 @@ import org.pdfsam.model.pdf.PdfDocumentDescriptor;
 import org.pdfsam.model.pdf.PdfLoadRequest;
 import org.pdfsam.model.tool.ToolBound;
 import org.pdfsam.ui.components.support.Style;
+import org.pdfsam.ui.components.support.Views;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.pdfsam.eventstudio.StaticStudio.eventStudio;
@@ -89,7 +90,7 @@ public class PasswordFieldPopup extends PopupControl implements ToolBound {
         public PasswordFieldPopupContent() {
             getStyleClass().setAll("pdfsam-input-password-content");
             passwordField.setPromptText(i18n().tr("Enter the user password"));
-            passwordField.setAccessibleText(i18n().tr("PDF document password"));
+            getChildren().add(Views.hiddenLabelFor(passwordField, i18n().tr("PDF document password")));
             var doneButton = new Button(i18n().tr("Unlock"));
             var icon = FontIcon.of(UniconsLine.UNLOCK_ALT);
             icon.setAccessibleRole(AccessibleRole.IMAGE_VIEW);

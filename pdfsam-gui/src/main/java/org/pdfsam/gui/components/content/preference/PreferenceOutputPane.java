@@ -54,7 +54,6 @@ class PreferenceOutputPane extends GridPane {
         setFillWidth(pdfVersionCombo, true);
         pdfVersionCombo.setMaxWidth(Double.POSITIVE_INFINITY);
         add(pdfVersionCombo, 1, 1);
-        pdfVersionCombo.setAccessibleText(i18n().tr("Default PDF version"));
         add(helpIcon(i18n().tr("Default PDF version for generated PDF files")), 2, 1);
 
         var compressionPolicyLabel = new Label(i18n().tr("Output files compression") + ":");
@@ -64,8 +63,6 @@ class PreferenceOutputPane extends GridPane {
         compressionPolicy.setMaxWidth(Double.POSITIVE_INFINITY);
         compressionPolicy.setId("compressionPolicy");
         add(compressionPolicy, 1, 2);
-        compressionPolicy.setAccessibleText(
-                i18n().tr("Sets the default value for the compression policy of the output files"));
         var cpHelpIcon = helpIcon("""
                 - %s: %s
                 - %s: %s
@@ -108,7 +105,6 @@ class PreferenceOutputPane extends GridPane {
         setFillWidth(prefixField, true);
         prefixField.setMaxWidth(Double.POSITIVE_INFINITY);
         add(prefixField, 1, 7);
-        prefixField.setAccessibleText(i18n().tr("Default prefix"));
         var helpIcon = helpIcon("""
                 %s.
                 %s

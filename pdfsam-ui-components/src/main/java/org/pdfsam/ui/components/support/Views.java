@@ -20,6 +20,7 @@ package org.pdfsam.ui.components.support;
 
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Region;
@@ -75,5 +76,23 @@ public final class Views {
         tooltip.setShowDuration(Duration.seconds(10));
         Tooltip.install(icon, tooltip);
         return icon;
+    }
+
+    /**
+     * Creates a label that is never displayed but gives the target node its name for screen readers. This is how input controls (text fields,
+     * combo boxes) without a visible label should be named: their accessible text is reported by screen readers as their value, so setting it
+     * hides what the user typed or selected. The returned label must be added to the scene graph, anywhere, for the name to be exposed.
+     *
+     * @param target the node to name
+     * @param text   the name
+     * @return the hidden label
+     */
+    public static Label hiddenLabelFor(Node target, String text) {
+        var label = new Label(text);
+        label.setMnemonicParsing(false);
+        label.setVisible(false);
+        label.setManaged(false);
+        label.setLabelFor(target);
+        return label;
     }
 }

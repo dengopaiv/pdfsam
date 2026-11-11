@@ -48,7 +48,7 @@ class PreferenceWorkspacePane extends VBox {
             @Named("savePwdInWorkspace") PreferenceCheckBox savePwdInWorkspace) {
         String workingDirHelpText = i18n().tr("Select a directory where documents will be saved and loaded by default");
         workingDirectory.getTextField().setPromptText(workingDirHelpText);
-        workingDirectory.getTextField().setAccessibleText(workingDirHelpText);
+        workingDirectory.getTextField().setAccessibleHelp(workingDirHelpText);
         workingDirectory.setBrowseWindowTitle(i18n().tr("Select a directory"));
         var workigDirPane = new GridPane();
         workigDirPane.getStyleClass().addAll(Style.GRID.css());
@@ -64,7 +64,7 @@ class PreferenceWorkspacePane extends VBox {
         String workspaceHelpText = i18n().tr(
                 "Select a previously saved workspace that will be automatically loaded at startup");
         workspace.getTextField().setPromptText(workspaceHelpText);
-        workspace.getTextField().setAccessibleText(workspaceHelpText);
+        workspace.getTextField().setAccessibleHelp(workspaceHelpText);
         workspace.setBrowseWindowTitle(i18n().tr("Select a workspace"));
 
         var workspaceDirPane = new GridPane();

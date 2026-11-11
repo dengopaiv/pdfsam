@@ -26,6 +26,7 @@ import org.pdfsam.model.ui.ComboItem;
 import org.pdfsam.model.ui.ResettableView;
 import org.pdfsam.model.ui.workspace.RestorableView;
 import org.pdfsam.ui.components.support.Style;
+import org.pdfsam.ui.components.support.Views;
 import org.sejda.model.pdf.page.PredefinedSetOfPages;
 import org.sejda.model.rotation.Rotation;
 
@@ -66,11 +67,10 @@ class RotateOptionsPane extends HBox
 
         var rotateLabel = new Label(i18n().tr("Rotate") + " ");
         rotateLabel.setLabelFor(this.rotationType);
-        this.rotationType.setAccessibleText(i18n().tr("Page selection for rotation"));
         this.rotationType.setAccessibleHelp(i18n().tr("Choose which pages to rotate: all, even, or odd"));
-        this.rotation.setAccessibleText(i18n().tr("Rotation angle"));
         this.rotation.setAccessibleHelp(i18n().tr("Choose the rotation angle to apply"));
-        getChildren().addAll(rotateLabel, this.rotationType, this.rotation);
+        getChildren().addAll(rotateLabel, this.rotationType, this.rotation,
+                Views.hiddenLabelFor(this.rotation, i18n().tr("Rotation angle")));
     }
 
     @Override

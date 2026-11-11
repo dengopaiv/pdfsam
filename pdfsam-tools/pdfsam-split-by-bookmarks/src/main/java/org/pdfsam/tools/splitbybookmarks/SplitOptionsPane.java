@@ -56,7 +56,6 @@ class SplitOptionsPane extends GridPane
         getStyleClass().addAll(Style.CONTAINER.css());
         getStyleClass().addAll(Style.GRID.css());
         levelCombo.setId("bookmarksLevel");
-        levelCombo.setAccessibleText(i18n().tr("Split at this bookmark level"));
         levelCombo.setAccessibleHelp(i18n().tr("Select the bookmark depth level at which to split the document"));
         regexpField.setId("bookmarksRegexp");
         regexpField.setPromptText(i18n().tr("Regular expression the bookmark has to match"));

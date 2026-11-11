@@ -55,7 +55,6 @@ public class SplitByEveryRadioButton extends RadioButton
         this.field.setPromptText(i18n().tr("Number of pages"));
         this.field.setValidator(Validators.positiveInteger());
         this.field.setErrorMessage(i18n().tr("Invalid number of pages"));
-        this.field.setAccessibleText(i18n().tr("Number of pages for split"));
         this.field.setAccessibleHelp(i18n().tr("Enter a positive number of pages"));
     }
 
