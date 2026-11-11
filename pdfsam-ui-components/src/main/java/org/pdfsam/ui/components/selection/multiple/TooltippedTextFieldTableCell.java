@@ -20,14 +20,21 @@ package org.pdfsam.ui.components.selection.multiple;
 
 import javafx.event.Event;
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
+import org.pdfsam.ui.components.support.Views;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Editable cell showing a tooltip.
@@ -40,16 +47,26 @@ import java.util.Objects;
 class TooltippedTextFieldTableCell extends TooltippedTableCell<String> {
 
     private final TextField textField = new TextField();
+    //names the editor for screen readers after the column it edits
+    private final Label editorName = Views.hiddenLabelFor(textField, "");
 
     private final StringConverter<String> converter = new DefaultStringConverter();
 
     public TooltippedTextFieldTableCell(String tooltipMessage) {
         super(tooltipMessage);
 
-        setGraphic(textField);
+        var editor = new HBox(editorName, textField);
+        HBox.setHgrow(textField, Priority.ALWAYS);
+        setGraphic(editor);
         setContentDisplay(ContentDisplay.TEXT_ONLY);
 
         textField.setOnAction(evt -> commitEdit(this.converter.fromString(textField.getText())));
+        textField.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ESCAPE && isEditing()) {
+                cancelEdit();
+                e.consume();
+            }
+        });
         textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
                 // When the text field loses focus, the editing property flips to `false` and consequently
@@ -82,6 +99,7 @@ class TooltippedTextFieldTableCell extends TooltippedTableCell<String> {
     @Override
     public void startEdit() {
         super.startEdit();
+        Optional.ofNullable(getTableColumn()).map(TableColumn::getText).ifPresent(editorName::setText);
         textField.setText(converter.toString(getItem()));
         setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         textField.requestFocus();
@@ -89,13 +107,29 @@ class TooltippedTextFieldTableCell extends TooltippedTableCell<String> {
 
     @Override
     public void cancelEdit() {
+        var editorFocused = textField.isFocused();
         super.cancelEdit();
+        //discard what was typed so that losing the focus doesn't commit it
+        textField.setText(converter.toString(getItem()));
         setContentDisplay(ContentDisplay.TEXT_ONLY);
+        returnFocusToTable(editorFocused);
+    }
+
+    /**
+     * When editing ends with the keyboard (Enter or Escape) the editor is hidden, the focus goes back to the table so that keyboard users can
+     * keep moving through the rows. When editing ends because the focus moved somewhere else, the focus is left there.
+     */
+    private void returnFocusToTable(boolean editorFocused) {
+        if (editorFocused) {
+            Optional.ofNullable(getTableView()).ifPresent(TableView::requestFocus);
+        }
     }
 
     @Override
     public void commitEdit(String item) {
+        var editorFocused = textField.isFocused();
         super.commitEdit(item);
         setContentDisplay(ContentDisplay.TEXT_ONLY);
+        returnFocusToTable(editorFocused);
     }
 }

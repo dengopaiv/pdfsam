@@ -37,6 +37,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.input.Clipboard;
@@ -81,7 +82,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -135,7 +135,17 @@ public class SelectionTable extends TableView<SelectionTableRowData> implements 
         setEditable(true);
         getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         getColumns().add(new IndexColumn());
-        Arrays.stream(columns).forEach(c -> getColumns().add(c.getTableColumn()));
+        TableColumn<SelectionTableRowData, ?> pageRangesColumn = null;
+        TableColumn<SelectionTableRowData, ?> paceColumn = null;
+        for (TableColumnProvider<?> provider : columns) {
+            var column = provider.getTableColumn();
+            getColumns().add(column);
+            if (provider instanceof PageRangesColumn) {
+                pageRangesColumn = column;
+            } else if (provider instanceof PaceColumn) {
+                paceColumn = column;
+            }
+        }
         setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         getStyleClass().add("selection-table");
         initDragAndDrop(canMove);
@@ -163,8 +173,7 @@ public class SelectionTable extends TableView<SelectionTableRowData> implements 
         passwordPopup = new PasswordFieldPopup(this.toolBinding);
 
         ContextMenu contextMenu = new ContextMenu();
-        initTopSectionContextMenu(contextMenu, Arrays.stream(columns).anyMatch(PageRangesColumn.class::isInstance),
-                Arrays.stream(columns).anyMatch(PaceColumn.class::isInstance));
+        initTopSectionContextMenu(contextMenu, pageRangesColumn, paceColumn);
         initItemsSectionContextMenu(contextMenu, canDuplicateItems, canMove);
         initBottomSectionContextMenu(contextMenu);
         setContextMenu(contextMenu);
@@ -172,7 +181,8 @@ public class SelectionTable extends TableView<SelectionTableRowData> implements 
         eventStudio().add(SelectionChangedEvent.class, e -> selectionChangedConsumer.accept(e), toolBinding);
     }
 
-    private void initTopSectionContextMenu(ContextMenu contextMenu, boolean hasRanges, boolean hasPace) {
+    private void initTopSectionContextMenu(ContextMenu contextMenu, TableColumn<SelectionTableRowData, ?> pageRangesColumn,
+            TableColumn<SelectionTableRowData, ?> paceColumn) {
         MenuItem setDestinationItem = createMenuItem(i18n().tr("Set destination"), UniconsLine.CROSSHAIR);
         setDestinationItem.setOnAction(e -> eventStudio().broadcast(
                 requestDestination(getSelectionModel().getSelectedItem().descriptor().getFile(), toolBinding()),
@@ -182,7 +192,14 @@ public class SelectionTable extends TableView<SelectionTableRowData> implements 
         selectionChangedConsumer = e -> setDestinationItem.setDisable(!e.isSingleSelection());
         contextMenu.getItems().add(setDestinationItem);
 
-        if (hasRanges) {
+        if (nonNull(pageRangesColumn)) {
+            MenuItem editPageRangesItem = createMenuItem(i18n().tr("Edit page ranges"), UniconsLine.EDIT_ALT);
+            editPageRangesItem.setOnAction(e -> editFocusedRow(pageRangesColumn));
+            editPageRangesItem.setAccelerator(new KeyCodeCombination(KeyCode.F2));
+            selectionChangedConsumer = selectionChangedConsumer.andThen(
+                    e -> editPageRangesItem.setDisable(!e.isSingleSelection()));
+            contextMenu.getItems().add(editPageRangesItem);
+
             MenuItem setPageRangesItem = createMenuItem(i18n().tr("Set as range for all"),
                     UniconsLine.RIGHT_INDENT_ALT);
             setPageRangesItem.setOnAction(e -> eventStudio().broadcast(
@@ -193,7 +210,14 @@ public class SelectionTable extends TableView<SelectionTableRowData> implements 
                     e -> setPageRangesItem.setDisable(!e.isSingleSelection()));
             contextMenu.getItems().add(setPageRangesItem);
         }
-        if (hasPace) {
+        if (nonNull(paceColumn)) {
+            MenuItem editPaceItem = createMenuItem(i18n().tr("Edit pace"), UniconsLine.EDIT_ALT);
+            editPaceItem.setOnAction(e -> editFocusedRow(paceColumn));
+            editPaceItem.setAccelerator(new KeyCodeCombination(KeyCode.F2, KeyCombination.SHIFT_DOWN));
+            selectionChangedConsumer = selectionChangedConsumer.andThen(
+                    e -> editPaceItem.setDisable(!e.isSingleSelection()));
+            contextMenu.getItems().add(editPaceItem);
+
             MenuItem setAsPaceItem = createMenuItem(i18n().tr("Set as pace for all"), UniconsLine.ELLIPSIS_V);
             setAsPaceItem.setOnAction(
                     e -> eventStudio().broadcast(new SetPaceRequest(getSelectionModel().getSelectedItem().pace.get()),
@@ -331,6 +355,18 @@ public class SelectionTable extends TableView<SelectionTableRowData> implements 
             openFileItem.setDisable(!e.isSingleSelection());
             openFolderItem.setDisable(!e.isSingleSelection());
         });
+    }
+
+    /**
+     * Starts editing the given column of the focused row, the keyboard alternative to double clicking the cell. Context menu accelerators
+     * work in the whole window, so this only acts when the table has the focus.
+     */
+    private void editFocusedRow(TableColumn<SelectionTableRowData, ?> column) {
+        int row = getFocusModel().getFocusedIndex();
+        if (row >= 0 && nonNull(getScene()) && getScene().getFocusOwner() == this) {
+            scrollTo(row);
+            edit(row, column);
+        }
     }
 
     private MenuItem createMenuItem(String text, Ikon icon) {
