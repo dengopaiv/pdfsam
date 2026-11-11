@@ -60,7 +60,11 @@ class TooltippedTextFieldTableCell extends TooltippedTableCell<String> {
         setGraphic(editor);
         setContentDisplay(ContentDisplay.TEXT_ONLY);
 
-        textField.setOnAction(evt -> commitEdit(this.converter.fromString(textField.getText())));
+        textField.setOnAction(evt -> {
+            commitEdit(this.converter.fromString(textField.getText()));
+            //otherwise Enter goes on to the default button and runs the task
+            evt.consume();
+        });
         textField.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.ESCAPE && isEditing()) {
                 cancelEdit();
@@ -108,9 +112,9 @@ class TooltippedTextFieldTableCell extends TooltippedTableCell<String> {
     @Override
     public void cancelEdit() {
         var editorFocused = textField.isFocused();
-        super.cancelEdit();
-        //discard what was typed so that losing the focus doesn't commit it
+        //discard what was typed first: cancelling moves the focus to the table, and the editor losing the focus commits its text
         textField.setText(converter.toString(getItem()));
+        super.cancelEdit();
         setContentDisplay(ContentDisplay.TEXT_ONLY);
         returnFocusToTable(editorFocused);
     }

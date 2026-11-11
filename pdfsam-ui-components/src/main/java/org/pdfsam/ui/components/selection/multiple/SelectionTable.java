@@ -48,6 +48,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Region;
 import javafx.stage.Window;
@@ -93,6 +94,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -174,6 +176,7 @@ public class SelectionTable extends TableView<SelectionTableRowData> implements 
 
         ContextMenu contextMenu = new ContextMenu();
         initTopSectionContextMenu(contextMenu, pageRangesColumn, paceColumn);
+        initKeyboardEditing(pageRangesColumn, paceColumn);
         initItemsSectionContextMenu(contextMenu, canDuplicateItems, canMove);
         initBottomSectionContextMenu(contextMenu);
         setContextMenu(contextMenu);
@@ -355,6 +358,23 @@ public class SelectionTable extends TableView<SelectionTableRowData> implements 
             infoItem.setDisable(!e.isSingleSelection());
             openFileItem.setDisable(!e.isSingleSelection());
             openFolderItem.setDisable(!e.isSingleSelection());
+        });
+    }
+
+    /**
+     * F2 is handled by the TableView itself, which in row selection mode doesn't know which cell to edit, and consumes it before the context
+     * menu accelerators see it. This filter gets the key first.
+     */
+    private void initKeyboardEditing(TableColumn<SelectionTableRowData, ?> pageRangesColumn,
+            TableColumn<SelectionTableRowData, ?> paceColumn) {
+        addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.F2 && isNull(getEditingCell())) {
+                var column = e.isShiftDown() ? paceColumn : pageRangesColumn;
+                if (nonNull(column) && getSelectionModel().getSelectedIndices().size() == 1) {
+                    editFocusedRow(column);
+                    e.consume();
+                }
+            }
         });
     }
 
