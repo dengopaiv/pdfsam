@@ -182,6 +182,8 @@ public class ValidableTextField extends TextField {
             requireNotBlank(message, "Tooltip message cannot be blank");
             this.tooltip = new Tooltip(message);
             this.tooltip.getStyleClass().add(ERROR_TOOLTIP_CLASS);
+            //it hides by itself, Escape is left to the focused control (ex. to close an error notification)
+            this.tooltip.setHideOnEscape(false);
             hideTimer.getKeyFrames().add(new KeyFrame(new Duration(5000)));
             hideTimer.setOnFinished(e -> {
                 tooltip.hide();
